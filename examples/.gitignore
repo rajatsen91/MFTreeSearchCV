@@ -1,0 +1,17 @@
+*.swp
+*.pdf
+*.eps
+*.png
+*.jpg
+*.mat
+*.gif
+*.out
+*.lua
+*.pyc
+*.so
+garbageCan/*
+*Duplicate*
+*log*
+*clean*
+*count_lines*
+*99999*

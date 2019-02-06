@@ -1,0 +1,7 @@
+
+#GITTINS_PATH=$HOME/projects/Gittins/gittins
+GITTINS_PATH=/home1/03782/rsen/work/MFTree
+PATH=$PATH:$GITTINS_PATH
+export PYTHONPATH=$GITTINS_PATH
+
+
