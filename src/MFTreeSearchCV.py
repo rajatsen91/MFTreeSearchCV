@@ -25,15 +25,8 @@ class MFTreeSearchCV():
 		'kernel' : {'range': [ ‘linear’, ‘poly’, ‘rbf’, ‘sigmoid’], 'type': 'cat'}, \
 		'degree' : {'range': [3,10], 'type': 'int', 'scale': 'linear'}}
 	scoring : string, callable, list/tuple, dict or None, default: None
-		A single string (see :ref:`scoring_parameter`) or a callable
-		(see :ref:`scoring`) to evaluate the predictions on the test set.
-		For evaluating multiple metrics, either give a list of (unique) strings
-		or a dict with names as keys and callables as values.
-		NOTE that when using custom scorers, each scorer should return a single
-		value. Metric functions returning a list/array of values can be wrapped
-		into multiple scorers that return one value each.
-		See :ref:`multimetric_grid_search` for an example.
-		If None, the estimator's default scorer (if available) is used.
+		A single string (see :ref:`scoring_parameter`). this must be specified as a string. See scikit-learn metrics 
+		for more details. 
 	fixed_params: dictionary of parameter values other than the once in param_dict, that should be held fixed at the supplied value.
 	For example, if fixed_params = {'nthread': 10} is passed with estimator as XGBoost, it means that all
 	XGBoost instances will be run with 10 parallel threads
@@ -80,10 +73,11 @@ class MFTreeSearchCV():
 	refit_time_ : float
 		Seconds used for refitting the best model on the whole dataset.
 		This is present only if ``refit`` is not False.
+
 	
 	"""
 
-	def __init__(self, estimator, param_dict, scoring='accuracy', fixed_params = None,\
+	def __init__(self, estimator, param_dict, scoring='accuracy', greater_is_better = True, fixed_params = None,\
 				 n_jobs=1, refit=True, cv = 3, debug = True, n_jobs = 1, nu_max = 1.0, rho_max = 0.95, sigma = 0.02, C = 1.0, tol = 1e-3, \
 				 Randomize = False, Auto = True, unit_cost = 1.0,\
 				 fidelity_range,total_budget):
@@ -91,6 +85,7 @@ class MFTreeSearchCV():
 		self.base_estimator = estimator 
 		self.param_dict = param_dict
 		self.scoring = scoring
+		self.greater_is_better = greater_is_better
 		self.fixed_params = fixed_params
 		self.n_jobs = self.n_jobs
 		self.fidelity_range = fidelity_range
