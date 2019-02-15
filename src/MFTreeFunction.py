@@ -17,32 +17,7 @@ from sklearn.model_selection import cross_val_score
 import pandas as pd
 
 
-'''
-Scoring Functions:
-Scoring	Function	Comment
-Classification	 	 
-‘accuracy’	metrics.accuracy_score	 
-‘balanced_accuracy’	metrics.balanced_accuracy_score	for binary targets
-‘average_precision’	metrics.average_precision_score	 
-‘brier_score_loss’	metrics.brier_score_loss	 
-‘f1’	metrics.f1_score	for binary targets
-‘f1_micro’	metrics.f1_score	micro-averaged
-‘f1_macro’	metrics.f1_score	macro-averaged
-‘f1_weighted’	metrics.f1_score	weighted average
-‘f1_samples’	metrics.f1_score	by multilabel sample
-‘neg_log_loss’	metrics.log_loss	requires predict_proba support
-‘precision’ etc.	metrics.precision_score	suffixes apply as with ‘f1’
-‘recall’ etc.	metrics.recall_score	suffixes apply as with ‘f1’
-‘roc_auc’	metrics.roc_auc_score	 
- 	 
-Regression	 	 
-‘explained_variance’	metrics.explained_variance_score	 
-‘neg_mean_absolute_error’	metrics.mean_absolute_error	 
-‘neg_mean_squared_error’	metrics.mean_squared_error	 
-‘neg_mean_squared_log_error’	metrics.mean_squared_log_error	 
-‘neg_median_absolute_error’	metrics.median_absolute_error	 
-‘r2’	metrics.r2_score
-'''
+
 
 def return_scoring_function(tag):
 	if tag == 'accuracy':
@@ -88,26 +63,29 @@ def merge_two_dicts(x, y):
 
 
 class MFTreeFunction(MFOptFunction):
-	def __init__(self, X,y,estimator, param_dict, scoring='accuracy', greater_is_better = True, fixed_params = None,\
-				 n_jobs=1, cv = 3, n_jobs = 1, \
-				 fidelity_range):
+	def __init__(self, X,y,estimator, param_dict,fidelity_range, \
+		scoring='accuracy', greater_is_better = True, fixed_params = {},\
+				 n_jobs=1, cv = 3,\
+				 ):
 
 		self.base_estimator = estimator 
 		self.param_dict = param_dict
 		self.scoring = scoring
 		self.fixed_params = fixed_params
-		self.n_jobs = self.n_jobs
+		self.n_jobs = n_jobs
 		self.fidelity_range = fidelity_range
 		self.cv = cv
 		self.fidelity_range = fidelity_range
 		self.X = X
 		self.y = y
+		self.greater_is_better = greater_is_better
 
 		self.scorer = return_scoring_function(self.scoring)
 		self.problem_bounds, self.keys = convert_dict_to_bounds(self.param_dict)
 		self.max_data = self.fidelity_range[1]
 		mf_func = self._mf_func
 		fidel_cost_func = self._fidel_cost
+		fidel_bounds = np.array([self.fidelity_range])
 		domain_bounds = np.array(self.problem_bounds)
 		opt_fidel_unnormalised = np.array([self.max_data])
 		super(MFTreeFunction, self).__init__(mf_func, fidel_cost_func, fidel_bounds,
@@ -115,22 +93,27 @@ class MFTreeFunction(MFOptFunction):
 											  vectorised=False)
 
 	def _fidel_cost(self, z):
-	""" cost function """
-		return 0.01 + (z[0]/self.max_data)
+		return 0.01 + (float(z[0])/self.max_data)
 
 
 	def _mf_func(self, z, x):
 		pgrid = convert_values_to_dict(list(x),self.problem_bounds,self.keys, self.param_dict)
 		grid = merge_two_dicts(pgrid,self.fixed_params)
+		gbm = self.base_estimator
 		gbm.set_params(**grid)
+		r,c = self.X.shape
 		num_data_curr = int(z[0])
-		feat_curr = self.X[1:num_data_curr]
-		label_curr = self.y[1:num_data_curr]
-		return get_kfold_val_score(gbm, feat_curr, label_curr)
+		inds = np.random.choice(r,num_data_curr)
+		feat_curr = self.X[inds]
+		label_curr = self.y[inds]
+		return self.get_kfold_val_score(gbm, feat_curr, label_curr)
 
-	def get_kfold_val_score(clf, X, Y, num_folds=None,random_seed = 512):
+	def get_kfold_val_score(self,clf, X, Y, num_folds=None,random_seed = 512):
 		st0 = np.random.get_state()
-		np.random.seed(random_seed)
+		if random_seed is None:
+			np.random.seed()
+		else:
+			np.random.seed(random_seed)
 		num_folds = self.cv
 		acc = cross_val_score(clf,X = X,y = Y,cv=num_folds,n_jobs=self.n_jobs,scoring=self.scoring)
 		np.random.set_state(st0)
