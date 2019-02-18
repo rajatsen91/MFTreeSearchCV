@@ -517,7 +517,7 @@ class MFPOO(object):
 		else:
 			self.cost = self.cost + self.nHOO*self.unit_cost
 		index = np.argmax(evals)
-		return points[index],evals[index]
+		return points,evals
 
 
 

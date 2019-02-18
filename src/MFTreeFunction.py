@@ -65,8 +65,7 @@ def merge_two_dicts(x, y):
 class MFTreeFunction(MFOptFunction):
 	def __init__(self, X,y,estimator, param_dict,fidelity_range, \
 		scoring='accuracy', greater_is_better = True, fixed_params = {},\
-				 n_jobs=1, cv = 3,\
-				 ):
+				 n_jobs=1, cv = 3):
 
 		self.base_estimator = estimator 
 		self.param_dict = param_dict

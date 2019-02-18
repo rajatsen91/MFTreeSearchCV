@@ -4,8 +4,20 @@
 
 
 from sklearn.model_selection import BaseSearchCV
+from converters import *
+from MFTreeFunction import *
 
-class MFTreeSearchCV():
+import numpy as np
+import Queue
+from mf.mf_func import MFOptFunction
+from utils.general_utils import map_to_cube
+import sys
+from mf.mf_func import get_noisy_mfof_from_mfof
+import time
+
+
+
+class MFTreeSearchCV(BaseSearchCV):
 	"""Multi-Fidelity  Tree Search over specified parameter ranges for an estimator.
 	Important members are fit, predict.
 	MFTreeSearchCV implements a "fit" and a "score" method.
@@ -77,17 +89,20 @@ class MFTreeSearchCV():
 	
 	"""
 
-	def __init__(self, estimator, param_dict, scoring='accuracy', greater_is_better = True, fixed_params = None,\
-				 n_jobs=1, refit=True, cv = 3, debug = True, n_jobs = 1, nu_max = 1.0, rho_max = 0.95, sigma = 0.02, C = 1.0, tol = 1e-3, \
-				 Randomize = False, Auto = True, unit_cost = 1.0,\
+	def __init__(self, estimator, param_dict, scoring='accuracy',\
+	 greater_is_better = True, fixed_params = None,\
+				 n_jobs=1, refit=True, cv = 3, debug = True, n_jobs = 1, \
+				 nu_max = 1.0, rho_max = 0.95, sigma = 0.02, C = 0.05, \
+				 tol = 1e-3, \
+				 Randomize = False, Auto = True, unit_cost = 1.0,mult = 0.2,\
 				 fidelity_range,total_budget):
 
-		self.base_estimator = estimator 
+		self.estimator = estimator 
 		self.param_dict = param_dict
 		self.scoring = scoring
 		self.greater_is_better = greater_is_better
 		self.fixed_params = fixed_params
-		self.n_jobs = self.n_jobs
+		self.n_jobs = n_jobs
 		self.fidelity_range = fidelity_range
 		self.refit = refit
 		self.cv = cv 
@@ -99,30 +114,73 @@ class MFTreeSearchCV():
 		self.tol = tol 
 		self.fidelity_range = fidelity_range
 		self.total_budget = total_budget
+		self.unit_cost = unit_cost
+		self.mult = mult
+		self.Randomize = Randomize
+		self.Auto = Auto
+
+		super(MFTreeSearchCV, self).__init__(
+			estimator=estimator, scoring=scoring, fit_params=None,
+			n_jobs=n_jobs, iid='warn', refit=refit, cv=cv, verbose=debug)
 
 
+	def _create_mfobject(self,X,y):
+		MF = MFTreeFunction(X,y,self.estimator, self.param_dict,\
+			self.fidelity_range, \
+		self.scoring, self.greater_is_better, self.fixed_params,\
+				 self.n_jobs, self.cv)
 
-	def _create_mfobject(self):
+		return MF
 
-
-
-	def _run_tree_search(self):
-
-
-
-	def _populate_cv_results(self):
-
-
-	def _refit(self):
+	def _populate_cv_results(self,point,evals):
 
 
-	def predict(self,X):
-
-
-	def predict_proba(self,X):
+	def _refit(self,X,y):
+		params = merge_two_dicts(self.best_params_,self.fixed_params)
+		self.best_estimator_ = self.estimator.set_params(**params)
+		self.best_estimator_.fit(X,y)
 
 
 	def fit(self,X,y):
+		self.MF = self._create_mfobject(X,y)
+		t1 = time.time()
+		
+		self.MP = MFPOO(mfobject=self.MF, nu_max=self.nu_max, rho_max=self.rho_max, \
+			total_budget=self.total_budget, sigma=self.sigma, C=self.C, \
+			mult=self.mult, tol = self.tol, Randomize = self.Randomize, \
+			Auto = self.Auto,unit_cost=self.unit_cost,\
+			CAPITAL = 'Time', debug = self.debug )
+		
+		self.MP.run_all_MFHOO()
+		
+
+		points, evals = self.MP.get_point()
+		
+		t2 = time.time()
+
+		self.exp_time = t2 - t1
+
+		index = np.argmax(evals)
+
+		bp = points[index]
+
+		self.best_params_ = convert_values_to_dict(bp,self.MF.problem_bounds,keys, self.MF.param_dict)
+
+		self.best_score_ = evals[index]
+
+		if self.refit:
+			t1 = time.time()
+			self._refit(X,y)
+			t2 = time.time()
+			self.refit_time_ = t2 - t1
+			return self
+		else:
+			return self
+
+
+
+
+
 		
 
 
