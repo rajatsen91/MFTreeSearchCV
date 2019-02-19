@@ -1,19 +1,22 @@
 
 #Author: Rajat Sen
 
+from __future__ import print_function
+from __future__ import division
+
 import numpy as np
-import Queue
 from mf.mf_func import MFOptFunction  # MF function object
 from utils.general_utils import map_to_cube # mapping everything to [0,1]^d cube
 import sys
 from examples.synthetic_functions import *
 from multiprocessing import Process
-import brewer2mpl
+#import brewer2mpl
 import pandas as pd
 import random
 import sys
 import time
 import datetime
+
 
 
 
@@ -95,7 +98,7 @@ class MF_tree(object):
 		self.C = C 
 		self.root = root
 		self.mheight = 0
-		self.maxi = float(-sys.maxint - 1)
+		self.maxi = float(-sys.maxsize - 1)
 		self.current_best = root
 	
 
@@ -193,7 +196,7 @@ class MF_tree(object):
 		'''
 		for i in range(self.mheight + 1):
 			self.print_given_height(self.root,i)
-			print '\n'
+			print('\n')
 
 
 	def search_cell(self,root,cell):
@@ -220,7 +223,7 @@ class MF_tree(object):
 		getting the next node to be queried or broken, see the algorithm in the paper
 		'''
 		if root is None:
-			print 'Could not find next node. Check Tree.'
+			print('Could not find next node. Check Tree.')
 		if root.left is None and root.right is None:
 			return root
 		if root.left is None:
@@ -281,7 +284,9 @@ class MFHOO(object):
 	CAPITAL: 'Time' mean time in seconds is used as cost unit, while 'Actual' means unit cost used in synthetic experiments
 	debug: If true then more messages are printed
 	'''
-	def __init__(self,mfobject, nu, rho, budget, sigma, C, tol = 1e-3, Randomize = False, Auto = False,value_dict = {},CAPITAL = 'Time', debug = 'True'):
+	def __init__(self,mfobject, nu, rho, budget, sigma, C, tol = 1e-3,\
+	 Randomize = False, Auto = False,value_dict = {},\
+	 CAPITAL = 'Time', debug = 'True'):
 		self.mfobject = mfobject
 		self.nu = nu
 		self.rho = rho
@@ -308,9 +313,9 @@ class MFHOO(object):
 			self.C = np.sqrt(2)*np.abs(v1-v2)/np.abs(z1-z2)
 			self.nu = nu_mult*self.C
 			if self.debug:
-				print 'Auto Init: '
-				print 'C: ' + str(self.C)
-				print 'nu: ' + str(self.nu)
+				print('Auto Init: ')
+				print('C: ' + str(self.C))
+				print('nu: ' + str(self.nu))
 			c1 = self.mfobject.eval_fidel_cost_single_point_normalised([z1])
 			c2 = self.mfobject.eval_fidel_cost_single_point_normalised([z2])
 			self.cost = c1 + c2
@@ -449,28 +454,35 @@ class MFPOO(object):
 		self.CAPITAL = CAPITAL
 		self.debug = debug
 		if Auto:
-			z1 = 0.8
+			if unit_cost is None:
+				z1 = 1.0
+			else:
+				z1 = 0.8
 			z2 = 0.2
 			d = self.mfobject.domain_dim
 			x = np.array([0.5]*d)
-			#x = np.random.uniform(size=d)
 			t1 = time.time()
 			v1 = self.mfobject.eval_at_fidel_single_point_normalised([z1], x)
+			t3 = time.time()
 			v2 = self.mfobject.eval_at_fidel_single_point_normalised([z2], x)
 			t2 = time.time()
 			self.C = np.sqrt(2)*np.abs(v1-v2)/np.abs(z1-z2)
 			self.nu_max = nu_mult*self.C
+			if unit_cost is None:
+				unit_cost = t3 - t1
+				if self.debug:
+					print('Setting unit cost automatically as None was supplied')
 			if self.debug:
-				print 'Auto Init: '
-				print 'C: ' + str(self.C)
-				print 'nu: ' + str(self.nu_max)
+				print('Auto Init: ')
+				print('C: ' + str(self.C))
+				print('nu: ' + str(self.nu_max))
 			c1 = self.mfobject.eval_fidel_cost_single_point_normalised([z1])
 			c2 = self.mfobject.eval_fidel_cost_single_point_normalised([z2])
 			self.total_budget = self.total_budget - c1 - c2
 			if self.CAPITAL == 'Time':
 				self.total_budget = self.total_budget - (t2 - t1)
 			if self.debug:
-				print 'Budget Remaining: ' + str(self.total_budget)
+				print('Budget Remaining: ' + str(self.total_budget))
 
 		if self.CAPITAL == 'Time':
 			self.unit_cost = unit_cost
@@ -482,8 +494,8 @@ class MFPOO(object):
 		self.nHOO = max(1,int(min(max(1,nHOO),n/2+1)))
 		self.budget = (self.total_budget - self.nHOO*self.unit_cost)/float(self.nHOO)
 		if self.debug:
-			print 'Number of MFHOO Instances: ' + str(self.nHOO)
-			print 'Budget per MFHOO Instance:' + str(self.budget)
+			print('Number of MFHOO Instances: ' + str(self.nHOO))
+			print('Budget per MFHOO Instance:' + str(self.budget))
 
 
 	def run_all_MFHOO(self):
@@ -491,18 +503,18 @@ class MFPOO(object):
 		for i in range(self.nHOO):
 			rho = self.rho_max**(float(self.nHOO)/(self.nHOO-i))
 			MH = MFHOO(mfobject = self.mfobject, nu=nu, rho=rho, budget=self.budget, sigma=self.sigma, C=self.C, tol = 1e-3, Randomize = False, Auto = False,value_dict = self.value_dict, CAPITAL = self.CAPITAL, debug = self.debug)
-			print 'Running SOO number: ' + str(i+1) + ' rho: ' + str(rho) + ' nu: ' + str(nu)
+			print('Running SOO number: ' + str(i+1) + ' rho: ' + str(rho) + ' nu: ' + str(nu))
 			MH.run()
-			print 'Done!'
+			print('Done!')
 			self.cost = self.cost + MH.cost
 			if MH.cflag:
 				self.C = 1.4*self.C
 				nu = nu_mult*self.C
 				self.nu_max = nu_mult*self.C
 				if self.debug:
-					print 'Updating C'
-					print 'C: ' + str(self.C)
-					print 'nu_max: ' + str(nu)
+					print('Updating C')
+					print('C: ' + str(self.C))
+					print('nu_max: ' + str(nu))
 			self.value_dict = MH.value_dict
 			self.MH_arr = self.MH_arr + [MH]
 
@@ -516,8 +528,15 @@ class MFPOO(object):
 			self.cost = self.cost + self.nHOO*self.mfobject.eval_fidel_cost_single_point_normalised([1.0])
 		else:
 			self.cost = self.cost + self.nHOO*self.unit_cost
+		
 		index = np.argmax(evals)
-		return points,evals
+		
+		newp = []
+		for p in points:
+			_,npoint =  self.mfobject.get_unnormalised_coords(None,p)
+			newp = newp + [npoint]
+		
+		return newp,evals
 
 
 

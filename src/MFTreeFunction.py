@@ -2,9 +2,14 @@
 # general MF function object for doing tree search on scikit-learn classifier/regressor object
 
 
+
+from __future__ import print_function
+from __future__ import division
+
+
 import numpy as np 
 from sklearn.metrics import *
-from converters import *
+from src.converters import *
 from sklearn.model_selection import cross_val_score
 
 from copy import deepcopy
@@ -15,6 +20,8 @@ from mf.mf_func import MFOptFunction
 import warnings
 from sklearn.model_selection import cross_val_score
 import pandas as pd
+
+
 
 
 

@@ -2,6 +2,10 @@
 ### This file is meant for functions that interchange various methods of representing the range and values for various hyper-parameters. 
 
 
+
+
+from __future__ import print_function
+from __future__ import division
 import numpy as np
 
 def convert_dict_to_bounds(param_dict):

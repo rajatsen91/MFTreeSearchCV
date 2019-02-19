@@ -2,21 +2,23 @@
 
 # This is the main source file that implements the methods MFTreeSearchCV
 
+from __future__ import print_function
+from __future__ import division
 
 from sklearn.model_selection import GridSearchCV
-from converters import *
-from MFTreeFunction import *
+from src.converters import *
+from src.MFTreeFunction import *
 
 import numpy as np
-import Queue
 from mf.mf_func import MFOptFunction
 from utils.general_utils import map_to_cube
 import sys
 from mf.mf_func import get_noisy_mfof_from_mfof
 import time
-from MFHOO import *
+from src.MFHOO import *
 
 import pandas as pd 
+
 
 
 
@@ -99,7 +101,7 @@ class MFTreeSearchCV(GridSearchCV):
 				 refit=True, cv = 3, debug = True, n_jobs = 1, \
 				 nu_max = 1.0, rho_max = 0.95, sigma = 0.02, C = 0.05, \
 				 tol = 1e-3, \
-				 Randomize = False, Auto = True, unit_cost = 1.0,mult = 0.2):
+				 Randomize = False, Auto = True, unit_cost = None,mult = 0.2):
 
 		param_grid = {}
 		for key in param_dict:
@@ -157,7 +159,7 @@ class MFTreeSearchCV(GridSearchCV):
 	def _refit(self,X,y):
 		params = merge_two_dicts(self.best_params_,self.fixed_params)
 		self.best_estimator_ = self.estimator.set_params(**params)
-		self.best_estimator_.fit(X,y)
+		self.best_estimator = self.best_estimator_.fit(X,y)
 
 
 	def fit(self,X,y):
@@ -173,21 +175,21 @@ class MFTreeSearchCV(GridSearchCV):
 		self.MP.run_all_MFHOO()
 		
 
-		points, evals = self.MP.get_point()
+		self.points, self.evals = self.MP.get_point()
 		
 		t2 = time.time()
 
 		self.exp_time = t2 - t1
 
-		index = np.argmax(evals)
+		index = np.argmax(self.evals)
 
-		bp = points[index]
+		bp = self.points[index]
 
 		self.best_params_ = convert_values_to_dict(bp,self.MF.problem_bounds,self.MF.keys, self.MF.param_dict)
 
-		self.best_score_ = evals[index]
+		self.best_score_ = self.evals[index]
 
-		self._populate_cv_results(points,evals)
+		self._populate_cv_results(self.points,self.evals)
 
 		if self.refit:
 			t1 = time.time()
