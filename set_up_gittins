@@ -1,6 +1,6 @@
 
 #GITTINS_PATH=$HOME/projects/Gittins/gittins
-GITTINS_PATH=/home1/03782/rsen/work/MFTree
+GITTINS_PATH=~/code/MFTreeSearchCV
 PATH=$PATH:$GITTINS_PATH
 export PYTHONPATH=$GITTINS_PATH
 
