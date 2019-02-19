@@ -3,7 +3,7 @@
 # This is the main source file that implements the methods MFTreeSearchCV
 
 
-from sklearn.model_selection import BaseSearchCV
+from sklearn.model_selection import GridSearchCV
 from converters import *
 from MFTreeFunction import *
 
@@ -14,10 +14,15 @@ from utils.general_utils import map_to_cube
 import sys
 from mf.mf_func import get_noisy_mfof_from_mfof
 import time
+from MFHOO import *
+
+import pandas as pd 
 
 
 
-class MFTreeSearchCV(BaseSearchCV):
+
+
+class MFTreeSearchCV(GridSearchCV):
 	"""Multi-Fidelity  Tree Search over specified parameter ranges for an estimator.
 	Important members are fit, predict.
 	MFTreeSearchCV implements a "fit" and a "score" method.
@@ -34,7 +39,7 @@ class MFTreeSearchCV(BaseSearchCV):
 	and 'scale': 'linear' or 'log' specifying whether the search is done on a linear scale or a logarithmic scale. An example for param_dict
 	for scikit-learn SVC is as follows:
 		eg: param_dict = {'C' : {'range': [1e-2,1e2], 'type': 'real', 'scale': 'log'}, \
-		'kernel' : {'range': [ ‘linear’, ‘poly’, ‘rbf’, ‘sigmoid’], 'type': 'cat'}, \
+		'kernel' : {'range': [ 'linear', 'poly', 'rbf', 'sigmoid'], 'type': 'cat'}, \
 		'degree' : {'range': [3,10], 'type': 'int', 'scale': 'linear'}}
 	scoring : string, callable, list/tuple, dict or None, default: None
 		A single string (see :ref:`scoring_parameter`). this must be specified as a string. See scikit-learn metrics 
@@ -89,13 +94,22 @@ class MFTreeSearchCV(BaseSearchCV):
 	
 	"""
 
-	def __init__(self, estimator, param_dict, scoring='accuracy',\
-	 greater_is_better = True, fixed_params = None,\
-				 n_jobs=1, refit=True, cv = 3, debug = True, n_jobs = 1, \
+	def __init__(self, estimator, param_dict, fidelity_range,total_budget, scoring='accuracy',\
+	 greater_is_better = True, fixed_params = {},\
+				 refit=True, cv = 3, debug = True, n_jobs = 1, \
 				 nu_max = 1.0, rho_max = 0.95, sigma = 0.02, C = 0.05, \
 				 tol = 1e-3, \
-				 Randomize = False, Auto = True, unit_cost = 1.0,mult = 0.2,\
-				 fidelity_range,total_budget):
+				 Randomize = False, Auto = True, unit_cost = 1.0,mult = 0.2):
+
+		param_grid = {}
+		for key in param_dict:
+			p = param_dict[key]
+			param_grid[key] = [p['range'][0]]
+
+
+		super(MFTreeSearchCV, self).__init__(
+			estimator=estimator, param_grid = param_grid,scoring=scoring,
+			n_jobs=n_jobs, iid='warn', refit=refit, cv=cv, verbose=debug)
 
 		self.estimator = estimator 
 		self.param_dict = param_dict
@@ -119,9 +133,7 @@ class MFTreeSearchCV(BaseSearchCV):
 		self.Randomize = Randomize
 		self.Auto = Auto
 
-		super(MFTreeSearchCV, self).__init__(
-			estimator=estimator, scoring=scoring, fit_params=None,
-			n_jobs=n_jobs, iid='warn', refit=refit, cv=cv, verbose=debug)
+		
 
 
 	def _create_mfobject(self,X,y):
@@ -132,7 +144,14 @@ class MFTreeSearchCV(BaseSearchCV):
 
 		return MF
 
-	def _populate_cv_results(self,point,evals):
+	def _populate_cv_results(self,points,evals):
+		self.cv_results_ = {}
+		for i in range(len(points)):
+			pr = convert_values_to_dict(points[i],self.MF.problem_bounds,\
+				self.MF.keys, self.MF.param_dict)
+			self.cv_results_[i] = {'params':pr,'score':evals[i]}
+
+		self.cv_results_ = pd.DataFrame(self.cv_results_).transpose()
 
 
 	def _refit(self,X,y):
@@ -164,9 +183,11 @@ class MFTreeSearchCV(BaseSearchCV):
 
 		bp = points[index]
 
-		self.best_params_ = convert_values_to_dict(bp,self.MF.problem_bounds,keys, self.MF.param_dict)
+		self.best_params_ = convert_values_to_dict(bp,self.MF.problem_bounds,self.MF.keys, self.MF.param_dict)
 
 		self.best_score_ = evals[index]
+
+		self._populate_cv_results(points,evals)
 
 		if self.refit:
 			t1 = time.time()
