@@ -8,7 +8,7 @@ import numpy as np
 from mf.mf_func import MFOptFunction  # MF function object
 from utils.general_utils import map_to_cube # mapping everything to [0,1]^d cube
 import sys
-from examples.synthetic_functions import *
+#from examples.synthetic_functions import *
 from multiprocessing import Process
 #import brewer2mpl
 import pandas as pd
@@ -456,6 +456,8 @@ class MFPOO(object):
 		if Auto:
 			if unit_cost is None:
 				z1 = 1.0
+				if self.debug:
+					print('Setting unit cost automatically as None was supplied')
 			else:
 				z1 = 0.8
 			z2 = 0.2
@@ -470,8 +472,6 @@ class MFPOO(object):
 			self.nu_max = nu_mult*self.C
 			if unit_cost is None:
 				unit_cost = t3 - t1
-				if self.debug:
-					print('Setting unit cost automatically as None was supplied')
 			if self.debug:
 				print('Auto Init: ')
 				print('C: ' + str(self.C))
@@ -530,6 +530,7 @@ class MFPOO(object):
 			self.cost = self.cost + self.nHOO*self.unit_cost
 		
 		index = np.argmax(evals)
+
 		
 		newp = []
 		for p in points:

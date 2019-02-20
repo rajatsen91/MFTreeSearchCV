@@ -191,6 +191,8 @@ class MFTreeSearchCV(GridSearchCV):
 
 		self._populate_cv_results(self.points,self.evals)
 
+		self.fit_time_ = self.MP.cost
+
 		if self.refit:
 			t1 = time.time()
 			self._refit(X,y)
