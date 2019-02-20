@@ -179,7 +179,7 @@ class MFTreeSearchCV(GridSearchCV):
 		
 		t2 = time.time()
 
-		self.exp_time = t2 - t1
+		self.fit_time_ = t2 - t1
 
 		index = np.argmax(self.evals)
 
@@ -191,7 +191,6 @@ class MFTreeSearchCV(GridSearchCV):
 
 		self._populate_cv_results(self.points,self.evals)
 
-		self.fit_time_ = self.MP.cost
 
 		if self.refit:
 			t1 = time.time()

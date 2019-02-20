@@ -472,6 +472,8 @@ class MFPOO(object):
 			self.nu_max = nu_mult*self.C
 			if unit_cost is None:
 				unit_cost = t3 - t1
+				if self.debug:
+					print('Unit Cost: ',unit_cost)
 			if self.debug:
 				print('Auto Init: ')
 				print('C: ' + str(self.C))
