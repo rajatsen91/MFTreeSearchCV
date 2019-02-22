@@ -1,10 +1,12 @@
 # Project Title
 
-One Paragraph of project description goes here
+This is a package for fast hyper-parameter tuning using noisy multi-fidelity tree-search for scikit-learn estimators (classifiers/regressors). Given ranges and types (categorical, integer, reals) for several hyper-parameters, this package is desgined to search for a good configuartion by treating the k-fold cross-validation errors and different setting under different fidelities (levels of approximation based on amount od data used), as a multi-fidelity noisy black-box function. We acknowledge the support from [@kirthevasank](https://github.com/kirthevasank) for providing the original multi-fidelity black-box function code base. This work is based on the publish papers:
+
+1. [A deterministic version of MF Tree Seach](http://proceedings.mlr.press/v80/sen18a/sen18a.pdf)
+2. [A version that can hadle noise -- which is there in tuning](https://arxiv.org/pdf/1810.10482)
 
 ## Getting Started
 
-These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system.
 
 ### Prerequisites
 
