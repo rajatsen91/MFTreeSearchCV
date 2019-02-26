@@ -6,8 +6,8 @@ from __future__ import print_function
 from __future__ import division
 
 from sklearn.model_selection import GridSearchCV
-from src.converters import *
-from src.MFTreeFunction import *
+from MFTreeSearchCV.converters import *
+from MFTreeSearchCV.MFTreeFunction import *
 
 import numpy as np
 from mf.mf_func import MFOptFunction
@@ -15,7 +15,7 @@ from utils.general_utils import map_to_cube
 import sys
 from mf.mf_func import get_noisy_mfof_from_mfof
 import time
-from src.MFHOO import *
+from MFTreeSearchCV.MFHOO import *
 
 import pandas as pd 
 
@@ -28,7 +28,7 @@ class MFTreeSearchCV(GridSearchCV):
 	"""Multi-Fidelity  Tree Search over specified parameter ranges for an estimator.
 	Important members are fit, predict.
 	MFTreeSearchCV implements a "fit" and a "score" method.
-	It also implements "predict", "predict_proba"
+	It also implements "predict", "predict_proba" is they are present in the base-estimator.
 	The parameters of the estimator used to apply these methods are optimized
 	by cross-validated Tree Search over a parameter search space.
 	----------
@@ -79,7 +79,8 @@ class MFTreeSearchCV(GridSearchCV):
 	
 	Attributes
 	----------
-	cv_results_ :
+	cv_results_ : dictionary showing the scores attained under a few parameters setting. Each
+	parameter setting is the best parameter obtained from a tree-search call. 
 	best_estimator_ : estimator or dict
 		Estimator that was chosen by the search, i.e. estimator
 		which gave highest score (or smallest loss if specified)

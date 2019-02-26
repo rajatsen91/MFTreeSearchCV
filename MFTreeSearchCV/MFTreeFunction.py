@@ -9,7 +9,7 @@ from __future__ import division
 
 import numpy as np 
 from sklearn.metrics import *
-from src.converters import *
+from MFTreeSearchCV.converters import *
 from sklearn.model_selection import cross_val_score
 
 from copy import deepcopy
@@ -27,6 +27,12 @@ import pandas as pd
 
 
 def return_scoring_function(tag):
+	'''
+	Given a scoring tag like 'accuracy' returns the 
+	corresponding scoring function. For example given
+	the string 'accuracy', this will return the function accuracy_score
+	from sklearn.model_selection
+	'''
 	if tag == 'accuracy':
 		f = accuracy_score
 	elif tag == 'balanced_accuracy':
@@ -64,12 +70,61 @@ def return_scoring_function(tag):
 	return f
 
 def merge_two_dicts(x, y):
+	'''
+	merges the two disctionaries x and y and returns the merged dictionary
+	'''
 	z = x.copy()   # start with x's keys and values
 	z.update(y)    # modifies z with y's keys and values & returns None
 	return z
 
 
 class MFTreeFunction(MFOptFunction):
+	'''
+	A multi-fidelity function class which can be queried at 'x' at different 
+	fidelity levels 'z in [0,1]'.
+	----------
+	X: training data features
+	y: training laabel features
+	estimator : estimator object.
+		This is assumed to implement the scikit-learn estimator interface.
+		Unlike grid search CV, estimator need not provide a ``score`` function.
+		Therefore ``scoring`` must be passed. 
+	param_dict : Dictionary with parameters names (string) as keys and and the value is another dictionary. The value dictionary has
+	the keys 'range' that specifies the range of the hyper-parameter, 'type': 'int' or 'cat' or 'real' (integere, categorical or real),
+	and 'scale': 'linear' or 'log' specifying whether the search is done on a linear scale or a logarithmic scale. An example for param_dict
+	for scikit-learn SVC is as follows:
+		eg: param_dict = {'C' : {'range': [1e-2,1e2], 'type': 'real', 'scale': 'log'}, \
+		'kernel' : {'range': [ 'linear', 'poly', 'rbf', 'sigmoid'], 'type': 'cat'}, \
+		'degree' : {'range': [3,10], 'type': 'int', 'scale': 'linear'}}
+	scoring : string, callable, list/tuple, dict or None, default: None
+		A single string (see :ref:`scoring_parameter`). this must be specified as a string. See scikit-learn metrics 
+		for more details. 
+	fixed_params: dictionary of parameter values other than the once in param_dict, that should be held fixed at the supplied value.
+	For example, if fixed_params = {'nthread': 10} is passed with estimator as XGBoost, it means that all
+	XGBoost instances will be run with 10 parallel threads
+	cv : int, cross-validation generator or an iterable, optional
+		Determines the cross-validation splitting strategy.
+		Possible inputs for cv are:
+		- None, to use the default 3-fold cross validation,
+		- integer, to specify the number of folds in a `(Stratified)KFold`,
+	debug : Binary
+		Controls the verbosity: True means more messages, while False only prints critical messages
+	refit : True means the best parameters are fit into an estimator and trained, while False means the best_estimator is not refit
+
+	fidelity_range : range of fidelity to use. It is a tuple (a,b) which means lowest fidelity means a samples are used for training and 
+	validation and b samples are used when fidelity is the highest. We recommend setting b to be the total number of training samples
+	available and a to bea reasonable value. 
+	
+	n_jobs : number of parallel runs for the CV. Note that njobs * (number of threads used in the estimator) must be less than the number of threads 
+	allowed in your machine. default value is 1. 
+	
+	Attributes and functions
+	----------
+	_mf_func : returns the value of the function at point 'x' evaluated at fidelity 'z'
+ 	For other methods see the specifications in mf/mf_func. 
+
+	
+	'''
 	def __init__(self, X,y,estimator, param_dict,fidelity_range, \
 		scoring='accuracy', greater_is_better = True, fixed_params = {},\
 				 n_jobs=1, cv = 3):

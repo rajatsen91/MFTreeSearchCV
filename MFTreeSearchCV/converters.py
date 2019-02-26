@@ -37,6 +37,9 @@ def convert_dict_to_bounds(param_dict):
 
 
 def indexify(v,r):
+	'''
+	Helper Function
+	'''
 	for i in range(r):
 		if float(i)/r <= v < float(i+1)/r:
 			return i
