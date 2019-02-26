@@ -10,7 +10,7 @@ import sys
 
 module_path = os.path.abspath(os.path.join('..'))
 if module_path not in sys.path:
-    sys.path.append(module_path)
+	sys.path.append(module_path)
 
 
 from sklearn.model_selection import GridSearchCV
@@ -101,7 +101,8 @@ class MFTreeSearchCV(GridSearchCV):
 	refit_time_ : float
 		Seconds used for refitting the best model on the whole dataset.
 		This is present only if ``refit`` is not False.
-
+	fit_time_ : float
+		Seconds taken to find the best parameters. Should be close to the budget given. 
 	
 	"""
 

@@ -11,7 +11,7 @@ import sys
 
 module_path = os.path.abspath(os.path.join('..'))
 if module_path not in sys.path:
-    sys.path.append(module_path)
+	sys.path.append(module_path)
 
 import numpy as np 
 from sklearn.metrics import *
@@ -127,7 +127,7 @@ class MFTreeFunction(MFOptFunction):
 	Attributes and functions
 	----------
 	_mf_func : returns the value of the function at point 'x' evaluated at fidelity 'z'
- 	For other methods see the specifications in mf/mf_func. 
+	For other methods see the specifications in mf/mf_func. 
 
 	
 	'''
