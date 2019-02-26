@@ -6,10 +6,16 @@
 from __future__ import print_function
 from __future__ import division
 
+import os
+import sys
+
+module_path = os.path.abspath(os.path.join('..'))
+if module_path not in sys.path:
+    sys.path.append(module_path)
 
 import numpy as np 
 from sklearn.metrics import *
-from MFTreeSearchCV.converters import *
+from converters import *
 from sklearn.model_selection import cross_val_score
 
 from copy import deepcopy

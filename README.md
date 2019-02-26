@@ -1,84 +1,52 @@
 # MFTreeSearchCV
 
-This is a package for fast hyper-parameter tuning using noisy multi-fidelity tree-search for scikit-learn estimators (classifiers/regressors). Given ranges and types (categorical, integer, reals) for several hyper-parameters, this package is desgined to search for a good configuartion by treating the k-fold cross-validation errors and different setting under different fidelities (levels of approximation based on amount od data used), as a multi-fidelity noisy black-box function. We acknowledge the support from [@kirthevasank](https://github.com/kirthevasank) for providing the original multi-fidelity black-box function code base. This work is based on the publications:
+This is a package for fast hyper-parameter tuning using noisy multi-fidelity tree-search for scikit-learn estimators (classifiers/regressors). Given ranges and types (categorical, integer, reals) for several hyper-parameters, this package is desgined to search for a good configuartion by treating the k-fold cross-validation errors and different setting under different fidelities (levels of approximation based on amount od data used), as a multi-fidelity noisy black-box function. This work is based on the publications:
 
 1. [A deterministic version of MF Tree Seach](http://proceedings.mlr.press/v80/sen18a/sen18a.pdf)
 2. [A version that can hadle noise -- which is there in tuning](https://arxiv.org/pdf/1810.10482)
 
 Please cite the above papers, if using this software in any publications/reports. 
 
-## Getting Started
-
 
 ### Prerequisites
 
-What things you need to install the software and how to install them
+1. You will need a C and a Fortran compiler such as gnu95. Please install them by following the correct steps for your machine and OS. 
 
-```
-Give examples
-```
+2. You will need the following python packacges: sklearn, numpy, brewer2mpl, scipy, 
 
 ### Installing
 
-A step by step series of examples that tell you how to get a development env running
-
-Say what the step will be
+1. Go to the location of your choice and clone the repo.
 
 ```
-Give the example
+git clone https://github.com/rajatsen91/MFTreeSearchCV.git
 ```
 
-And repeat
-
+2. Now the next steps are to setup the multi-fidelity enviroment. 
+- We will assume that the location of the project is `/home/MFTreeSearchCV/`
+- You first need to build the direct fortran library. For this `cd` into
+  `/home/MFTreeSearchCV/utils/direct_fortran` and run `bash make_direct.sh`. You will need a fortran compiler
+  such as gnu95. Once this is done, you can run `simple_direct_test.py` to make sure that
+  it was installed correctly.
+- Edit the `set_up_gittins` file to change the `GITTINS_PATH` to the local location of the repo. 
 ```
-until finished
-```
+GITTINS_PATH=/home/MFTreeSearchCV
+``` 
+- Run `source set_up_gittins` to set up all environment variables.
+- To test the installation, run `bash run_all_tests.sh`. Some of the tests are
+  probabilistic and could fail at times. Some tests that require a scratch directory will fail,
+  but nothing to worry about. 
 
-End with an example of getting some data out of the system or using it for a little demo
 
-## Running the tests
+### Usage 
 
-Explain how to run the automated tests for this system
+The usage of this repository is designed to be similar to parameter tuning function in sklearn.model_selection. The main function is `MFTreeSearchCV.MFTreeSearchCV`. The arguments and methods of thsi function are as follows,
 
-### Break down into end to end tests
 
-Explain what these tests test and why
-
-```
-Give an example
-```
-
-### And coding style tests
-
-Explain what these tests test and why
-
-```
-Give an example
-```
-
-## Deployment
-
-Add additional notes about how to deploy this on a live system
-
-## Built With
-
-* [Dropwizard](http://www.dropwizard.io/1.0.2/docs/) - The web framework used
-* [Maven](https://maven.apache.org/) - Dependency Management
-* [ROME](https://rometools.github.io/rome/) - Used to generate RSS Feeds
-
-## Contributing
-
-Please read [CONTRIBUTING.md](https://gist.github.com/PurpleBooth/b24679402957c63ec426) for details on our code of conduct, and the process for submitting pull requests to us.
-
-## Versioning
-
-We use [SemVer](http://semver.org/) for versioning. For the versions available, see the [tags on this repository](https://github.com/your/project/tags). 
 
 ## Authors
 
-* **Billie Thompson** - *Initial work* - [PurpleBooth](https://github.com/PurpleBooth)
-
-See also the list of [contributors](https://github.com/your/project/contributors) who participated in this project.
+* **Rajat Sen** 
 
 ## License
 
@@ -86,6 +54,4 @@ This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md
 
 ## Acknowledgments
 
-* Hat tip to anyone whose code was used
-* Inspiration
-* etc
+* We acknowledge the support from [@kirthevasank](https://github.com/kirthevasank) for providing the original multi-fidelity black-box function code base.

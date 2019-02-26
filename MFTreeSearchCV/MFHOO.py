@@ -4,6 +4,13 @@
 from __future__ import print_function
 from __future__ import division
 
+import os
+import sys
+
+module_path = os.path.abspath(os.path.join('..'))
+if module_path not in sys.path:
+    sys.path.append(module_path)
+
 import numpy as np
 from mf.mf_func import MFOptFunction  # MF function object
 from utils.general_utils import map_to_cube # mapping everything to [0,1]^d cube

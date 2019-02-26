@@ -5,9 +5,17 @@
 from __future__ import print_function
 from __future__ import division
 
+import os
+import sys
+
+module_path = os.path.abspath(os.path.join('..'))
+if module_path not in sys.path:
+    sys.path.append(module_path)
+
+
 from sklearn.model_selection import GridSearchCV
-from MFTreeSearchCV.converters import *
-from MFTreeSearchCV.MFTreeFunction import *
+from converters import *
+from MFTreeFunction import *
 
 import numpy as np
 from mf.mf_func import MFOptFunction
@@ -15,7 +23,7 @@ from utils.general_utils import map_to_cube
 import sys
 from mf.mf_func import get_noisy_mfof_from_mfof
 import time
-from MFTreeSearchCV.MFHOO import *
+from MFHOO import *
 
 import pandas as pd 
 
