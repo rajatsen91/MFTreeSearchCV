@@ -125,7 +125,7 @@ A functional example is provided in the ipython notebook `Illustrate.ipynb`.
 
 ### Example
 
-```
+```python
 
 estimator = LogisticRegression() #base estimator
 param_dict = {'C':{'range':[1e-5,1e5],'scale':'log','type':'real'},\
