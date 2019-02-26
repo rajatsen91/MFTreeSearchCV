@@ -12,7 +12,7 @@ Please cite the above papers, if using this software in any publications/reports
 
 1. You will need a C and a Fortran compiler such as gnu95. Please install them by following the correct steps for your machine and OS. 
 
-2. You will need the following python packacges: sklearn, numpy, brewer2mpl, scipy, 
+2. You will need the following python packages: sklearn, numpy, brewer2mpl, scipy, 
 
 ### Installing
 
@@ -121,6 +121,49 @@ The usage of this repository is designed to be similar to parameter tuning funct
 ```
 
 A functional example is provided in the ipython notebook `Illustrate.ipynb`. 
+
+
+### Example
+
+```
+
+estimator = LogisticRegression() #base estimator
+param_dict = {'C':{'range':[1e-5,1e5],'scale':'log','type':'real'},\
+              'penalty':{'range':['l1','l2'],'scale':'linear','type':'cat'}} #parameter space
+fidelity_range = [500,15076] # fidelity range, lowest fidelity uses 500 samples while the highest one uses 
+#the whole dataset  
+n_jobs = 3 # number of jobs
+cv = 3 # cv level
+fixed_params = {}
+scoring = 'accuracy'
+
+t1 = time.time()
+estimator = estimator.fit(X_train,y_train)
+t2 = time.time()
+total_budget = 500 # total budget in seconds
+print('Time without CV: ', t2 - t1)
+
+model = MFTreeSearchCV(estimator=estimator,param_dict=param_dict,scoring=scoring,\
+                      fidelity_range=fidelity_range,unit_cost=None,\
+                    cv=cv,  n_jobs = n_jobs,total_budget=total_budget,debug = True,fixed_params=fixed_params)
+
+## running in debug mode will display certain outputs
+
+
+m = model.fit(X_train,y_train) # actual tree search will be done here 
+
+y_pred = m.predict(X_test) # the returned model m will have the best parameters fitted as 'refit = True'
+
+accuracy = accuracy_score(y_pred,y_test) # this is the best accuracy obtained
+
+print(m.best_params_) # will print the best params 
+
+print(m.cv_results_) # will print cv scores for some other parameters as well, that were close
+
+
+
+
+```
 
 
 
