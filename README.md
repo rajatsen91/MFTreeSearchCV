@@ -1,18 +1,18 @@
 # MFTreeSearchCV
 
-This is a package for fast hyper-parameter tuning using noisy multi-fidelity tree-search for scikit-learn estimators (classifiers/regressors). Given ranges and types (categorical, integer, reals) for several hyper-parameters, this package is desgined to search for a good configuartion by treating the k-fold cross-validation errors and different setting under different fidelities (levels of approximation based on amount od data used), as a multi-fidelity noisy black-box function. This work is based on the publications:
+This is a package for fast hyper-parameter tuning using noisy multi-fidelity tree-search for scikit-learn estimators (classifiers/regressors). Given ranges and types (categorical, integer, reals) for several hyper-parameters, this package is designed to search for a good configuartion by treating the k-fold cross-validation errors under different settings and under different fidelities (levels of approximation based on amount of data used), as a multi-fidelity noisy black-box function. This work is based on the publications:
 
 1. [A deterministic version of MF Tree Seach](http://proceedings.mlr.press/v80/sen18a/sen18a.pdf)
 2. [A version that can hadle noise -- which is there in tuning](https://arxiv.org/pdf/1810.10482)
 
-Please cite the above papers, if using this software in any publications/reports. 
+Please cite the above papers, when using this software in any publications/reports. 
 
 
 ### Prerequisites
 
 1. You will need a C and a Fortran compiler such as gnu95. Please install them by following the correct steps for your machine and OS. 
 
-2. You will need the following python packages: sklearn, numpy, brewer2mpl, scipy, 
+2. You will need the following python packages: sklearn, numpy, brewer2mpl, scipy, matplotlib
 
 ### Installing
 
