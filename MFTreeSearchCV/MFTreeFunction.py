@@ -15,7 +15,7 @@ if module_path not in sys.path:
 
 import numpy as np 
 from sklearn.metrics import *
-from converters import *
+from MFTreeSearchCV.converters import *
 from sklearn.model_selection import cross_val_score
 
 from copy import deepcopy

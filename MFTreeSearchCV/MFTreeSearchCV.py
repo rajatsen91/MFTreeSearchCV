@@ -14,8 +14,8 @@ if module_path not in sys.path:
 
 
 from sklearn.model_selection import GridSearchCV
-from converters import *
-from MFTreeFunction import *
+from MFTreeSearchCV.converters import *
+from MFTreeSearchCV.MFTreeFunction import *
 
 import numpy as np
 from mf.mf_func import MFOptFunction
@@ -23,7 +23,7 @@ from utils.general_utils import map_to_cube
 import sys
 from mf.mf_func import get_noisy_mfof_from_mfof
 import time
-from MFHOO import *
+from MFTreeSearchCV.MFHOO import *
 
 import pandas as pd 
 
